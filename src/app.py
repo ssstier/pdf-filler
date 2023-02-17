@@ -3,6 +3,8 @@ from tkinter import ttk, PhotoImage, filedialog
 from tkinter.scrolledtext import ScrolledText
 from options import Options
 import os
+import generator
+import parse
 
 
 class App(tk.Tk):
@@ -17,9 +19,6 @@ class App(tk.Tk):
 
         menu = tk.Menu(container)
         tk.Tk.config(self, menu=menu)
-        file_menu = tk.Menu(menu, tearoff=False, activeborderwidth=5,
-                            activebackground='#4267B2')
-        submenu = tk.Menu(file_menu, tearoff=False, activebackground='#4267B2')
         menu.add_cascade(label="Generator",
                          command=lambda: self.show_frame(Dashy))
         menu.add_cascade(label="Settings",
@@ -42,12 +41,12 @@ class Dashy(tk.Frame):
         tk.Frame.__init__(self, parent, bg="#202020")
 
         self.status_bar = tk.StringVar(value="Welcome to PDF Generator")
-        #self.status_bar.set("Last ticket generated: N/A")
+        # self.status_bar.set("Last ticket generated: N/A")
 
         self.notepad = ScrolledText(self, width=75, height=18, bg="#0c0c0c",
                                     fg="#F8F8F2", insertbackground="white",
                                     insertofftime=800, insertwidth=1, padx=2,
-                                    font=("Arial 12"))
+                                    font="Arial 12")
         self.notepad.pack()
 
         status = ttk.Label(self, textvariable=self.status_bar,
@@ -63,14 +62,19 @@ class Dashy(tk.Frame):
         generate = tk.Button(self, text="Generate", height=1, width=8,
                              font=aux.big_font, activebackground="#5e955f",
                              bg="#7eaa7e", relief=tk.GROOVE,
-                             command= lambda: Popup(self,"Error"))
+                             command=lambda: self.generate())
         generate.pack(side=tk.RIGHT, padx=(0, 5))
 
     def generate(self):
-        #save the data, then extract to PDF
         text = self.notepad.get("1.0", "end-1c")
         self.notepad.delete("1.0", "end")
-        return
+        d = parse.Parser(text)
+        data = d.build_data()
+        generator.single_form_fill(aux.project_dir + r"\templates\example.pdf",
+                                   data, aux.cache["Settings"][
+                                       "output_path"] + r"\testfile.pdf",
+                                   aux.cache["Settings"][
+                                       "open_after_generation"])
 
     def delete(self):
         self.notepad.delete("1.0", "end")
@@ -84,15 +88,18 @@ class Settings(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg="#202020")
         output_label = ttk.Label(self, font=aux.big_font, background="#202020",
-                                 foreground="#FFFFFF", text="Output directory:")
+                                 foreground="#FFFFFF", text="Output "
+                                                            "directory:")
         output_label.place(x=1, y=3)
 
-        photo = PhotoImage(file=os.path.join(aux.project_dir, "images/folder1.png"))
+        photo = PhotoImage(file=os.path.join(aux.project_dir,
+                                             "images/folder1.png"))
         change_folder = tk.Button(self, image=photo, height=28, width=28,
                                   command=self.browse_directories)
         change_folder.image = photo
         change_folder.place(x=3, y=40)
-        self.directory_label = tk.StringVar(value=aux.startup()["Settings"]["output_path"])
+        self.directory_label = tk.StringVar(value=aux.cache["Settings"][
+            "output_path"])
         path_entry = ttk.Entry(self, width=40, font=("Calibri", 17),
                                textvariable=self.directory_label)
 
@@ -103,10 +110,8 @@ class Settings(tk.Frame):
         path_prompt = tk.filedialog.askdirectory(
             title="Choose a new output folder!")
         if path_prompt != "":
-            config = aux.read_file()
-            aux.set_settings(config, "Settings", "output_path", path_prompt)
+            aux.set_settings("Settings", "output_path", path_prompt)
             self.directory_label.set(path_prompt)
-
 
 
 class Popup(tk.Toplevel):

@@ -1,0 +1,15 @@
+What is your name? Sarah Maxwell
+
+Where do you live? 534 Cherry Lane	What city is this? Orlando
+
+What state is this? Florida
+
+What is your gender? female
+
+Do you have a valid Driver's license (y/n)? Yeah
+
+What is your employment status? Unemployed
+
+What languages do you speak? English and Russian
+
+EOF
