@@ -1,9 +1,3 @@
-import pdfrw
-from pdfrw.objects.pdfstring import PdfString
-import os
-import generator
-
-
 class Parser:
     def __init__(self, raw_data):
         self.raw_data = raw_data

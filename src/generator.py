@@ -1,3 +1,7 @@
+# BSD 3-Clause License
+# Copyright (c) 2021, West Health Institute
+# https://github.com/WestHealth/pdf-form-filler
+
 import pdfrw
 import webbrowser as wb
 
